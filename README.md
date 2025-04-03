@@ -1,2 +1,136 @@
 # Thrift-Elegance
 Thrift Elegance
+إليك تطبيق "Thrift Elegance" مصممًا بالكامل باستخدام React Native، مع إضافة توصيات وتحسينات مستندة على نقاط قوة وضعف التطبيقات المنافسة. تم تصميم التطبيق بحيث يعرض قائمة بالمنتجات ويتيح للمستخدمين البحث، عرض تفاصيل المنتجات، التفاعل من خلال الدردشة، تقديم الشكاوى، وإضافة المنتجات دون نظام دفع داخلي (التواصل يتم خارجيًا بين المستخدمين).
+
+فيما يلي الشفرة المصدرية للتطبيق:
+
+
+---
+
+/* 
+Thrift Elegance App
+A React Native application for displaying used clothes listings without in-app payments.
+Features:
+- Home screen with search and product filtering.
+- Product details with reviews, ratings, and options to chat or submit a complaint.
+- Dummy chat and complaint screens for direct user communication.
+- An Add Product screen for sellers to list their items.
+
+Additional Recommendations:
+- بناءً على تحليل التطبيقات المنافسة، نركز على بساطة واجهة المستخدم وسهولة التفاعل.\n- توصي الخوارزمية بتطبيق فلترة دقيقة للمنتجات باستخدام كلمات مفتاحية وتقنيات تحليل المحتوى للتأكد من صحة المنتج (يمكن تطويرها لاحقًا باستخدام الذكاء الاصطناعي).\n- تحسين تجربة المستخدم عبر إضافة تقييمات وتعليقات مفصلة لكل منتج لمساعدة المستخدمين على اتخاذ القرار.\n- توفير نظام إشعارات لتحديثات المنتجات والتعليقات لتحفيز التفاعل المستمر.
+*/
+
+import React from 'react';
+import { View, Text, Button, FlatList, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+
+const Stack = createStackNavigator();
+
+// Dummy data for demonstration
+const productsData = [
+  { 
+    id: '1', 
+    name: 'Used Shirt', 
+    price: '50', 
+    size: 'M', 
+    description: 'A nice used shirt in good condition.', 
+    reviews: [
+      { user: 'John', rating: 4, comment: 'Good quality and affordable.' }
+    ]
+  },
+  { 
+    id: '2', 
+    name: 'Vintage Jacket', 
+    price: '120', 
+    size: 'L', 
+    description: 'A stylish vintage jacket, perfect for cold weather.', 
+    reviews: [
+      { user: 'Alice', rating: 5, comment: 'Excellent find! Looks brand new.' }
+    ]
+  },
+];
+
+// Home Screen: Displays list of products with search functionality
+const HomeScreen = ({ navigation }) => {
+  const [searchText, setSearchText] = React.useState('');
+  const filteredProducts = productsData.filter(product => 
+    product.name.toLowerCase().includes(searchText.toLowerCase())
+  );
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Thrift Elegance</Text>
+      <TextInput
+        style={styles.input}
+        placeholder=\"Search products...\"
+        value={searchText}
+        onChangeText={setSearchText}
+      />
+      <FlatList
+        data={filteredProducts}
+        keyExtractor={item => item.id}
+        renderItem={({ item }) => (
+          <TouchableOpacity onPress={() => navigation.navigate('ProductDetails', { product: item })}>
+            <View style={styles.productItem}>
+              <Text style={styles.productName}>{item.name}</Text>
+              <Text>Size: {item.size}</Text>
+              <Text>Price: {item.price} USD</Text>
+            </View>
+          </TouchableOpacity>
+        )}
+      />
+      <Button title=\"Add New Product\" onPress={() => navigation.navigate('AddProduct')} />
+    </View>
+  );
+};
+
+// Product Details Screen: Shows details, reviews, and options for chat or complaint
+const ProductDetailsScreen = ({ route, navigation }) => {
+  const { product } = route.params;
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>{product.name}</Text>
+      <Text>Price: {product.price} USD</Text>
+      <Text>Size: {product.size}</Text>
+      <Text>Description: {product.description}</Text>
+      <Text style={styles.subtitle}>Reviews:</Text>
+      {product.reviews.map((review, index) => (
+        <View key={index} style={styles.review}>
+          <Text>{review.user}: {review.rating} Stars</Text>
+          <Text>{review.comment}</Text>
+        </View>
+      ))}
+      <Button title=\"Chat with Seller\" onPress={() => navigation.navigate('Chat', { product })} />
+      <Button title=\"Submit a Complaint\" onPress={() => navigation.navigate('Complaint', { product })} />
+    </View>
+  );
+};
+
+// Chat Screen: Dummy screen for chat functionality
+const ChatScreen = ({ route }) => {
+  const { product } = route.params;
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Chat about {product.name}</Text>
+      <Text>(Chat functionality coming soon...)</Text>
+    </View>
+  );
+};
+
+// Complaint Screen: Dummy screen for submitting complaints
+const ComplaintScreen = ({ route }) => {
+  const { product } = route.params;
+  const [complaint, setComplaint] = React.useState('');
+  
+  const submitComplaint = () => {
+    if(complaint.trim() === '') {\n      Alert.alert('Error', 'Please enter a complaint before submitting.');\n      return;\n    }\n    Alert.alert('Complaint Submitted', 'Your complaint has been submitted successfully.');\n    setComplaint('');\n  };
+  
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Submit a Complaint for {product.name}</Text>
+      <TextInput 
+        style={styles.input} 
+        placeholder=\"Enter your complaint...\" 
+        multiline\n        numberOfLines={4}\n        value={complaint}\n        onChangeText={setComplaint}\n      />\n      <Button title=\"Submit Complaint\" onPress={submitComplaint} />\n    </View>\n  );\n};\n\n// Add Product Screen: Dummy screen for adding a new product listing\nconst AddProductScreen = ({ navigation }) => {\n  const [name, setName] = React.useState('');\n  const [price, setPrice] = React.useState('');\n  const [size, setSize] = React.useState('');\n  const [description, setDescription] = React.useState('');\n\n  const handleSubmit = () => {\n    if(name.trim() === '' || price.trim() === '' || size.trim() === '') {\n      Alert.alert('Error', 'Please fill in all required fields.');\n      return;\n    }\n    // Here, code to handle product submission (e.g., API call) would be added.\n    Alert.alert('Success', 'Product added successfully!');\n    navigation.goBack();\n  };\n\n  return (\n    <View style={styles.container}>\n      <Text style={styles.title}>Add New Product</Text>\n      <TextInput \n        style={styles.input}\n        placeholder=\"Product Name\"\n        value={name}\n        onChangeText={setName}\n      />\n      <TextInput \n        style={styles.input}\n        placeholder=\"Price\"\n        value={price}\n        onChangeText={setPrice}\n        keyboardType=\"numeric\"\n      />\n      <TextInput \n        style={styles.input}\n        placeholder=\"Size\"\n        value={size}\n        onChangeText={setSize}\n      />\n      <TextInput \n        style={styles.input}\n        placeholder=\"Description\"\n        value={description}\n        onChangeText={setDescription}\n        multiline\n        numberOfLines={4}\n      />\n      <Button title=\"Submit Product\" onPress={handleSubmit} />\n    </View>\n  );\n};\n\n// Main App component with navigation\nconst App = () => {\n  return (\n    <NavigationContainer>\n      <Stack.Navigator initialRouteName=\"Home\">\n        <Stack.Screen name=\"Home\" component={HomeScreen} options={{ title: 'Thrift Elegance' }} />\n        <Stack.Screen name=\"ProductDetails\" component={ProductDetailsScreen} options={{ title: 'Product Details' }} />\n        <Stack.Screen name=\"Chat\" component={ChatScreen} options={{ title: 'Chat' }} />\n        <Stack.Screen name=\"Complaint\" component={ComplaintScreen} options={{ title: 'Complaint' }} />\n        <Stack.Screen name=\"AddProduct\" component={AddProductScreen} options={{ title: 'Add Product' }} />\n      </Stack.Navigator>\n    </NavigationContainer>\n  );\n};\n\nconst styles = StyleSheet.create({\n  container: { \n    flex: 1, \n    padding: 20, \n    backgroundColor: '#fff' \n  },\n  title: { \n    fontSize: 24, \n    fontWeight: 'bold', \n    marginBottom: 20 \n  },\n  input: { \n    borderWidth: 1, \n    borderColor: '#ccc', \n    padding: 10, \n    marginBottom: 15 \n  },\n  productItem: { \n    padding: 15, \n    borderBottomWidth: 1, \n    borderColor: '#eee' \n  },\n  productName: { \n    fontSize: 18, \n    fontWeight: 'bold' \n  },\n  subtitle: { \n    fontSize: 20, \n    marginTop: 20, \n    marginBottom: 10 \n  },\n  review: { \n    padding: 10, \n    borderWidth: 1, \n    borderColor: '#ddd', \n    marginBottom: 10 \n  }\n});\n\nexport default App;\n"}
+
